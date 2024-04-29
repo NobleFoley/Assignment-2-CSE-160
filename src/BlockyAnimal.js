@@ -78,49 +78,41 @@ function connectVariablesToGLSL() {
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
 
-// Constants
-const POINT = 0;
-const TRIANGLE = 1;
-const CIRCLE = 2;
-
 // Globals for UI Elements
-let g_selectedColor = [1.0, 0.0, 0.0, 1.0];
-let g_selectedSize = 5;
-let g_selectedType = POINT;
 let g_globalAngle = [0, 0];
-let g_tail3Angle = 0;
-let g_tail2Angle = 0;
-let g_tail1Angle = 0;
+let g_tail_endAngle = 0;
+let g_tail_middleAngle = 0;
+let g_tail_baseAngle = 0;
 let g_headAngle = 0;
 let g_bodyAngle = 0;
 let g_feetAngle = 0;
-let g_tail3Animation = false;
-let g_tail2Animation = false;
-let g_tailAnimation = false;
+let g_tail_endAnimation = false;
+let g_tail_middle_Animation = false;
+let g_tail_baseAnimation = false;
 let g_headAnimation = false;
 let g_bodyAnimation = false;
 let g_feetAnimation = false;
 
 function addActionsForHtmlUI() {
-  document.getElementById("yellow_animation_on").onclick = function () {
-    g_tail3Animation = true;
+  document.getElementById("tail_end_animation_on").onclick = function () {
+    g_tail_endAnimation = true;
   };
-  document.getElementById("yellow_animation_off").onclick = function () {
-    g_tail3Animation = false;
+  document.getElementById("tail_end_animation_off").onclick = function () {
+    g_tail_endAnimation = false;
   };
 
-  document.getElementById("magenta_animation_on").onclick = function () {
-    g_tail2Animation = true;
+  document.getElementById("tail_middle_animation_on").onclick = function () {
+    g_tail_middle_Animation = true;
   };
-  document.getElementById("magenta_animation_off").onclick = function () {
-    g_tail2Animation = false;
+  document.getElementById("tail_middle_animation_off").onclick = function () {
+    g_tail_middle_Animation = false;
   };
 
   document.getElementById("tail_base_animation_on").onclick = function () {
-    g_tailAnimation = true;
+    g_tail_baseAnimation = true;
   };
   document.getElementById("tail_base_animation_off").onclick = function () {
-    g_tailAnimation = false;
+    g_tail_baseAnimation = false;
   };
   document.getElementById("head_animation_on").onclick = function () {
     g_headAnimation = true;
@@ -141,38 +133,38 @@ function addActionsForHtmlUI() {
     g_feetAnimation = false;
   };
   document.getElementById("all_animation_on").onclick = function () {
-    g_tail3Animation = true;
-    g_tail2Animation = true;
-    g_tailAnimation = true;
+    g_tail_endAnimation = true;
+    g_tail_middle_Animation = true;
+    g_tail_baseAnimation = true;
     g_headAnimation = true;
     g_bodyAnimation = true;
     g_feetAnimation = true;
   };
   document.getElementById("all_animation_off").onclick = function () {
-    g_tail3Animation = false;
-    g_tail2Animation = false;
-    g_tailAnimation = false;
+    g_tail_endAnimation = false;
+    g_tail_middle_Animation = false;
+    g_tail_baseAnimation = false;
     g_headAnimation = false;
     g_bodyAnimation = false;
     g_feetAnimation = false;
   };
 
   document
-    .getElementById("yellow_input")
+    .getElementById("tail_end_input")
     .addEventListener("input", function () {
-      g_tail3Angle = this.value;
+      g_tail_endAngle = this.value;
       renderAllShapes();
     });
   document
-    .getElementById("magenta_input")
+    .getElementById("tail_middle_input")
     .addEventListener("input", function () {
-      g_tail2Angle = this.value;
+      g_tail_middleAngle = this.value;
       renderAllShapes();
     });
   document
     .getElementById("tail_base_input")
     .addEventListener("input", function () {
-      g_tail1Angle = this.value;
+      g_tail_baseAngle = this.value;
       renderAllShapes();
     });
   document.getElementById("head_input").addEventListener("input", function () {
@@ -205,7 +197,6 @@ function main() {
   addActionsForHtmlUI();
 
   // Register function (event handler) to be called on a mouse press
-  //canvas.onmousedown = click;
   canvas.onmousedown = function (ev) {
     if (ev.shiftKey) {
       g_jawAnimation = !g_jawAnimation;
@@ -220,9 +211,6 @@ function main() {
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-  // Clear <canvas>
-  //gl.clear(gl.COLOR_BUFFER_BIT);
-  //renderAllShapes();
   requestAnimationFrame(tick);
 }
 
@@ -260,24 +248,15 @@ function handleClicks(ev) {
   return [x, y];
 }
 
-var stats = new Stats();
-
-// move panel to right side instead of left
-// cuz our canvas will be covered
-stats.dom.style.left = "auto";
-stats.dom.style.right = "0";
-stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild(stats.dom);
-
 function updateAnimationAngles() {
-  if (g_tail3Animation) {
-    g_tail3Angle = 20 * Math.sin(2.5 * g_seconds);
+  if (g_tail_endAnimation) {
+    g_tail_endAngle = 20 * Math.sin(2.5 * g_seconds);
   }
-  if (g_tail2Animation) {
-    g_tail2Angle = 20 * Math.sin(3 * g_seconds);
+  if (g_tail_middle_Animation) {
+    g_tail_middleAngle = 20 * Math.sin(3 * g_seconds);
   }
-  if (g_tailAnimation) {
-    g_tail1Angle = 20 * Math.sin(3 * g_seconds);
+  if (g_tail_baseAnimation) {
+    g_tail_baseAngle = 20 * Math.sin(3 * g_seconds);
   }
   if (g_headAnimation) {
     g_headAngle = 5 * Math.sin(2 * g_seconds);
@@ -329,6 +308,14 @@ function renderAllShapes() {
     return [leg, leg_joint, foot];
   }
 
+  function drawTeeth(jaw_coords) {
+    var tooth = new Cube();
+    tooth.color = [1, 1, 1, 1];
+    tooth.matrix = new Matrix4(jaw_coords);
+    tooth.matrix.scale(0.03, 0.02, 0.05);
+    return tooth;
+    ///tooth.render();
+  }
   var body = new Cube();
   body.color = [0.034, 0.5, 0.05, 1];
   body.matrix.rotate(g_bodyAngle, 0, 1, 0);
@@ -338,13 +325,13 @@ function renderAllShapes() {
   body.matrix.scale(0.25, 0.5, 0.2);
   body.render();
 
-  var body2 = new Cube();
-  body2.color = [0.1, 0.4, 0.05, 1];
-  body2.matrix = new Matrix4(body_coords);
-  body2.matrix.translate(-0.17, -0.25, -0.05);
-  body2.matrix.rotate(-95, 1, 0, 0);
-  body2.matrix.scale(0.3, 0.4, 0.2);
-  body2.render();
+  var outer_body_shell = new Cube();
+  outer_body_shell.color = [0.1, 0.4, 0.05, 1];
+  outer_body_shell.matrix = new Matrix4(body_coords);
+  outer_body_shell.matrix.translate(-0.17, -0.25, -0.05);
+  outer_body_shell.matrix.rotate(-95, 1, 0, 0);
+  outer_body_shell.matrix.scale(0.3, 0.4, 0.2);
+  outer_body_shell.render();
 
   var head = new Cube();
   head.color = [0.1, 0.4, 0.05, 1];
@@ -364,33 +351,53 @@ function renderAllShapes() {
   eyes.matrix.translate(-4, 0.47, -2);
   eyes.render();
 
-  var jaws = new Cube();
-  jaws.color = [0.034, 0.35, 0.05, 1];
-  jaws.matrix = new Matrix4(head_coords);
-  jaws.matrix.translate(0.01, 0.02, -0.2);
+  var lower_jaws = new Cube();
+  lower_jaws.color = [0.034, 0.35, 0.05, 1];
+  lower_jaws.matrix = new Matrix4(head_coords);
+  lower_jaws.matrix.translate(0.01, 0.02, -0.2);
   if (g_jawAnimation) {
     g_jawAngle = 15 * Math.sin(5 * g_seconds);
     if (g_jawAngle > 0) {
-      jaws.matrix.rotate(-g_jawAngle, 1, 0, 0);
+      lower_jaws.matrix.rotate(-g_jawAngle, 1, 0, 0);
     }
   }
-  jaws.matrix.rotate(-95, 1, 0, 0);
-  jaws.matrix.scale(0.18, 0.25, 0.05);
-  jaws.render();
+  var jaw_coords = new Matrix4(lower_jaws.matrix);
+  lower_jaws.matrix.rotate(-95, 1, 0, 0);
+  lower_jaws.matrix.scale(0.18, 0.25, 0.05);
+  lower_jaws.render();
 
-  var jaws2 = new Cube();
-  jaws2.color = [0.034, 0.3, 0.05, 1];
-  jaws2.matrix = new Matrix4(head_coords);
-  jaws2.matrix.translate(0.01, 0.07, -0.205);
+  var tooth1 = drawTeeth(jaw_coords);
+  tooth1.matrix.translate(0.25, 1.5, -4);
+  tooth1.render();
+  var tooth2 = drawTeeth(jaw_coords);
+  tooth2.matrix.translate(4.7, 1.5, -4);
+  tooth2.render();
+  var tooth3 = drawTeeth(jaw_coords);
+  tooth3.matrix.translate(0.25, 1.5, -2);
+  tooth3.render();
+  var tooth4 = drawTeeth(jaw_coords);
+  tooth4.matrix.translate(4.7, 1.5, -2);
+  tooth4.render();
+  var tongue = new Cube();
+  tongue.color = [1 * 0.85, 0, 0.4 * 0.85, 1];
+  tongue.matrix = new Matrix4(jaw_coords);
+  tongue.matrix.scale(0.05, 0.025, 0.15);
+  tongue.matrix.translate(1.35, 1.5, -1);
+  tongue.render();
+
+  var upper_jaw = new Cube();
+  upper_jaw.color = [0.034, 0.3, 0.05, 1];
+  upper_jaw.matrix = new Matrix4(head_coords);
+  upper_jaw.matrix.translate(0.01, 0.07, -0.205);
   if (g_jawAnimation) {
     g_jawAngle = 15 * Math.sin(5 * g_seconds);
     if (g_jawAngle > 0) {
-      jaws2.matrix.rotate(g_jawAngle, 1, 0, 0);
+      upper_jaw.matrix.rotate(g_jawAngle, 1, 0, 0);
     }
   }
-  jaws2.matrix.rotate(-95, 1, 0, 0);
-  jaws2.matrix.scale(0.18, 0.25, 0.05);
-  jaws2.render();
+  upper_jaw.matrix.rotate(-95, 1, 0, 0);
+  upper_jaw.matrix.scale(0.18, 0.25, 0.05);
+  upper_jaw.render();
 
   var backright_legs = drawLeg(body_coords);
   backright_legs[0].render();
@@ -421,7 +428,7 @@ function renderAllShapes() {
   var tail = new Cylinder();
   tail.color = [0.1, 0.4, 0.05, 1];
   tail.matrix = new Matrix4(body_coords);
-  tail.matrix.rotate(g_tail1Angle, 0, 1, 0);
+  tail.matrix.rotate(g_tail_baseAngle, 0, 1, 0);
   var tail_coords = new Matrix4(tail.matrix);
   tail.matrix.scale(0.15, 0.15, 0.15);
   tail.matrix.translate(-0.15, -1, 0);
@@ -433,7 +440,7 @@ function renderAllShapes() {
   tail1.matrix = tail_coords;
   tail1.matrix.translate(-0.025, -0.15, 0.125);
   tail1.matrix.scale(0.125, 0.125, 0.125);
-  tail1.matrix.rotate(g_tail2Angle, 0, 1, 0);
+  tail1.matrix.rotate(g_tail_middleAngle, 0, 1, 0);
   var tail2_coords = new Matrix4(tail1.matrix);
   tail1.matrix.rotate(-95, 1, 0, 0);
   tail1.render();
@@ -442,7 +449,7 @@ function renderAllShapes() {
   tail2.color = [0.034, 0.2, 0.05, 1];
   tail2.matrix = tail2_coords;
   tail2.matrix.rotate(-95, 1, 0, 0);
-  tail2.matrix.rotate(g_tail3Angle, 0, 0, 1);
+  tail2.matrix.rotate(g_tail_endAngle, 0, 0, 1);
   tail2.matrix.translate(-0.025, -0.8, 0);
   tail2.matrix.scale(0.8, 0.8, 0.8);
   tail2.render();

@@ -2,10 +2,10 @@
 <!--
 
   Noble Foley
-  noafoley@ucsc.edu
 
   Notes to Grader:
-  Hi :)
+    Used classes for my drawCube function it is called render()
+    renderScene() is renderallShapes()
 
 -->
 <html lang="en">
@@ -35,17 +35,12 @@
         <p>*Shift Click the Canvas for a special animation</p>
       </div>
       <div style="margin-top: 1rem">
-        <button type="button" id="point_button">Point</button>
-        <button type="button" id="triangle_button">Triangle</button>
-        <button type="button" id="circle_button">Circle</button>
-      </div>
-      <div style="margin-top: 1rem">
         <label for="tail_base_input">Tail Base:</label>
         <input
           id="tail_base_input"
           type="range"
-          min="-45"
-          max="45"
+          min="-25"
+          max="25"
           value="0"
           class="slider"
         />
@@ -54,40 +49,40 @@
         <button type="button" id="tail_base_animation_off">OFF</button>
       </div>
       <div >
-        <label for="magenta_input">Tail Middle:</label>
+        <label for="tail_middle_input">Tail Middle:</label>
         <input
-        id="magenta_input"
+        id="tail_middle_input"
         type="range"
-        min="-45"
-        max="45"
+        min="-25"
+        max="25"
         value="0"
         class="slider"
         />
         <label>Animation:</label>
-        <button type="button" id="magenta_animation_on">ON</button>
-        <button type="button" id="magenta_animation_off">OFF</button>
+        <button type="button" id="tail_middle_animation_on">ON</button>
+        <button type="button" id="tail_middle_animation_off">OFF</button>
       </div>
       <div >
-        <label for="yellow_input">Tail End:</label>
+        <label for="tail_end_input">Tail End:</label>
         <input
-          id="yellow_input"
+          id="tail_end_input"
           type="range"
-          min="-45"
-          max="45"
+          min="-25"
+          max="25"
           value="0"
           class="slider"
         />
         <label>Animation:</label>
-        <button type="button" id="yellow_animation_on">ON</button>
-        <button type="button" id="yellow_animation_off">OFF</button>
+        <button type="button" id="tail_end_animation_on">ON</button>
+        <button type="button" id="tail_end_animation_off">OFF</button>
       </div>
       <div >
         <label for="head_input">Head:</label>
         <input
           id="head_input"
           type="range"
-          min="-25"
-          max="25"
+          min="-6"
+          max="6"
           value="0"
           class="slider"
         />
@@ -114,8 +109,8 @@
         <input
           id="feet_input"
           type="range"
-          min="-25"
-          max="25"
+          min="-10"
+          max="10"
           value="0"
           class="slider"
         />
@@ -142,7 +137,6 @@
         />
       </div>
     </div>
-    
 
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
