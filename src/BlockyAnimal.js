@@ -20,7 +20,6 @@ let canvas;
 let gl;
 let a_Position;
 let u_FragColor;
-//let u_Size;
 let u_ModelMatrix;
 
 function setUpWebGL() {
@@ -28,7 +27,6 @@ function setUpWebGL() {
   canvas = document.getElementById("webgl");
 
   // Get the rendering context for WebGL
-  //gl = getWebGLContext(canvas);
   gl = canvas.getContext("webgl", { preserveDrawingBuffer: true });
   if (!gl) {
     console.log("Failed to get the rendering context for WebGL");
@@ -58,13 +56,13 @@ function connectVariablesToGLSL() {
     console.log("Failed to get the storage location of u_FragColor");
     return;
   }
-
+  // Get the storage location of u_ModelMatrix
   u_ModelMatrix = gl.getUniformLocation(gl.program, "u_ModelMatrix");
   if (!u_ModelMatrix) {
     console.log("Failed to get the storage location of u_ModelMatrix");
     return;
   }
-
+  // Get the storage location of u_GlobalRotateMatrix
   u_GlobalRotateMatrix = gl.getUniformLocation(
     gl.program,
     "u_GlobalRotateMatrix"
@@ -73,7 +71,7 @@ function connectVariablesToGLSL() {
     console.log("Failed to get the storage location of u_GlobalRotateMatrix");
     return;
   }
-
+  // Pass an identity Matrix to the u_ModelMatrix variable in gl
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
@@ -179,6 +177,7 @@ function addActionsForHtmlUI() {
     g_feetAngle = this.value;
     renderAllShapes();
   });
+
   document
     .getElementById("camera_input")
     .addEventListener("input", function () {
@@ -186,7 +185,7 @@ function addActionsForHtmlUI() {
       renderAllShapes();
     });
 }
-
+// Global for jawAnimation (poke animation)
 let g_jawAnimation = false;
 
 function main() {
@@ -196,12 +195,13 @@ function main() {
 
   addActionsForHtmlUI();
 
-  // Register function (event handler) to be called on a mouse press
+  // Pokeshift toggles on and off the jawAnimation
   canvas.onmousedown = function (ev) {
     if (ev.shiftKey) {
       g_jawAnimation = !g_jawAnimation;
     }
   };
+  // Register function (event handler) to be called on a mouse click and drage (rotation)
   canvas.onmousemove = function (ev) {
     if (ev.buttons == 1) {
       click(ev);
@@ -214,12 +214,13 @@ function main() {
   requestAnimationFrame(tick);
 }
 
+// Tracks the seconds since website start
 var g_startTime = performance.now() / 1000;
 var g_seconds = performance.now() / 1000 - g_startTime;
 
+// Rerenders the scene
 function tick() {
   g_seconds = performance.now() / 1000 - g_startTime;
-  //console.log(g_seconds);
 
   updateAnimationAngles();
 
@@ -227,8 +228,6 @@ function tick() {
 
   requestAnimationFrame(tick);
 }
-
-var g_shapesList = [];
 
 function click(ev) {
   // Passes event to function to convert into WebGL coords
@@ -248,6 +247,7 @@ function handleClicks(ev) {
   return [x, y];
 }
 
+// Handles the updates for the rotation for the animations
 function updateAnimationAngles() {
   if (g_tail_endAnimation) {
     g_tail_endAngle = 20 * Math.sin(2.5 * g_seconds);
@@ -269,9 +269,11 @@ function updateAnimationAngles() {
   }
 }
 
+// Renders all the primitives needed for the Animal
 function renderAllShapes() {
   var startTime = performance.now();
 
+  // Global Rotation Matrix for the mouse drag rotation
   var globalRotMat = new Matrix4()
     .rotate(-g_globalAngle[0], 0, 1, 0)
     .rotate(g_globalAngle[1], 1, 0, 0);
@@ -281,6 +283,7 @@ function renderAllShapes() {
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  // Function for connecting the leg parts together made for simplicity returns each of the parts
   function drawLeg(body_coords) {
     var leg = new Cube();
     leg.color = [0.034, 0.5, 0.05, 1];
@@ -307,15 +310,15 @@ function renderAllShapes() {
 
     return [leg, leg_joint, foot];
   }
-
+  // Function for connecting the teeth made for simplicity returns each of them
   function drawTeeth(jaw_coords) {
     var tooth = new Cube();
     tooth.color = [1, 1, 1, 1];
     tooth.matrix = new Matrix4(jaw_coords);
     tooth.matrix.scale(0.03, 0.02, 0.05);
     return tooth;
-    ///tooth.render();
   }
+  // Main body of the crocodile
   var body = new Cube();
   body.color = [0.034, 0.5, 0.05, 1];
   body.matrix.rotate(g_bodyAngle, 0, 1, 0);
@@ -325,6 +328,7 @@ function renderAllShapes() {
   body.matrix.scale(0.25, 0.5, 0.2);
   body.render();
 
+  // Larger part of the body of the crocodile
   var outer_body_shell = new Cube();
   outer_body_shell.color = [0.1, 0.4, 0.05, 1];
   outer_body_shell.matrix = new Matrix4(body_coords);
@@ -333,39 +337,48 @@ function renderAllShapes() {
   outer_body_shell.matrix.scale(0.3, 0.4, 0.2);
   outer_body_shell.render();
 
+  // Head of the crocodile
   var head = new Cube();
   head.color = [0.1, 0.4, 0.05, 1];
   head.matrix = new Matrix4(body_coords);
   head.matrix.rotate(g_headAngle, 0, 1, 0);
   head.matrix.translate(-0.12, -0.28, -0.5);
+  // For later use of connecting parts with rotation
   var head_coords = new Matrix4(head.matrix);
   head.matrix.scale(0.2, 0.22, 0.2);
   head.matrix.rotate(-95, 1, 0, 0);
   head.render();
 
+  // Eyes of the crocodile
   var eyes = new Cylinder();
   eyes.color = [0, 0, 0, 1];
+  // Attaches eyes to the rotation/animation of the head
   eyes.matrix = new Matrix4(head_coords);
   eyes.matrix.rotate(-90, 0, 0, 1);
   eyes.matrix.scale(0.04, 0.21, 0.04);
   eyes.matrix.translate(-4, 0.47, -2);
   eyes.render();
 
+  // Lower Jaw of the crocodile
   var lower_jaws = new Cube();
   lower_jaws.color = [0.034, 0.35, 0.05, 1];
+  // Attaches lower jaw to the rotation/animation of the head
   lower_jaws.matrix = new Matrix4(head_coords);
   lower_jaws.matrix.translate(0.01, 0.02, -0.2);
+  // If poke animation is true than it will do the animation for opening the mouth
   if (g_jawAnimation) {
     g_jawAngle = 15 * Math.sin(5 * g_seconds);
     if (g_jawAngle > 0) {
       lower_jaws.matrix.rotate(-g_jawAngle, 1, 0, 0);
     }
   }
+  // Used to attach the teeth to the lower jaw
   var jaw_coords = new Matrix4(lower_jaws.matrix);
   lower_jaws.matrix.rotate(-95, 1, 0, 0);
   lower_jaws.matrix.scale(0.18, 0.25, 0.05);
   lower_jaws.render();
 
+  // All the teeth (connected to the jaw) uses the drawTeeth() func
   var tooth1 = drawTeeth(jaw_coords);
   tooth1.matrix.translate(0.25, 1.5, -4);
   tooth1.render();
@@ -378,17 +391,22 @@ function renderAllShapes() {
   var tooth4 = drawTeeth(jaw_coords);
   tooth4.matrix.translate(4.7, 1.5, -2);
   tooth4.render();
+  // Tongue of the crocodile
   var tongue = new Cube();
   tongue.color = [1 * 0.85, 0, 0.4 * 0.85, 1];
+  // Attached to the jaw
   tongue.matrix = new Matrix4(jaw_coords);
   tongue.matrix.scale(0.05, 0.025, 0.15);
   tongue.matrix.translate(1.35, 1.5, -1);
   tongue.render();
 
+  // Upper Jaw of the crocodile
   var upper_jaw = new Cube();
   upper_jaw.color = [0.034, 0.3, 0.05, 1];
+  // Attaches to the head
   upper_jaw.matrix = new Matrix4(head_coords);
   upper_jaw.matrix.translate(0.01, 0.07, -0.205);
+  // If poke animation is true than it will do the animation for opening the mouth
   if (g_jawAnimation) {
     g_jawAngle = 15 * Math.sin(5 * g_seconds);
     if (g_jawAngle > 0) {
@@ -399,6 +417,7 @@ function renderAllShapes() {
   upper_jaw.matrix.scale(0.18, 0.25, 0.05);
   upper_jaw.render();
 
+  // Uses the drawLeg() func to easily make the objects for the legs and return the parts for finetuning
   var backright_legs = drawLeg(body_coords);
   backright_legs[0].render();
   backright_legs[1].render();
@@ -425,35 +444,39 @@ function renderAllShapes() {
   frontleft_legs[2].matrix.translate(-6.3, -0.4, 1.8);
   frontleft_legs[2].render();
 
-  var tail = new Cylinder();
-  tail.color = [0.1, 0.4, 0.05, 1];
-  tail.matrix = new Matrix4(body_coords);
-  tail.matrix.rotate(g_tail_baseAngle, 0, 1, 0);
-  var tail_coords = new Matrix4(tail.matrix);
-  tail.matrix.scale(0.15, 0.15, 0.15);
-  tail.matrix.translate(-0.15, -1, 0);
-  tail.matrix.rotate(-95, 1, 0, 0);
-  tail.render();
+  // Base of the tail
+  var tail_base = new Cylinder();
+  tail_base.color = [0.1, 0.4, 0.05, 1];
+  tail_base.matrix = new Matrix4(body_coords);
+  tail_base.matrix.rotate(g_tail_baseAngle, 0, 1, 0);
+  var tail_coords = new Matrix4(tail_base.matrix);
+  tail_base.matrix.scale(0.15, 0.15, 0.15);
+  tail_base.matrix.translate(-0.15, -1, 0);
+  tail_base.matrix.rotate(-95, 1, 0, 0);
+  tail_base.render();
 
-  var tail1 = new Cylinder();
-  tail1.color = [0.034, 0.35, 0.05, 1];
-  tail1.matrix = tail_coords;
-  tail1.matrix.translate(-0.025, -0.15, 0.125);
-  tail1.matrix.scale(0.125, 0.125, 0.125);
-  tail1.matrix.rotate(g_tail_middleAngle, 0, 1, 0);
-  var tail2_coords = new Matrix4(tail1.matrix);
-  tail1.matrix.rotate(-95, 1, 0, 0);
-  tail1.render();
+  // Middle portion of the tail
+  var tail_middle = new Cylinder();
+  tail_middle.color = [0.034, 0.35, 0.05, 1];
+  tail_middle.matrix = tail_coords;
+  tail_middle.matrix.translate(-0.025, -0.15, 0.125);
+  tail_middle.matrix.scale(0.125, 0.125, 0.125);
+  tail_middle.matrix.rotate(g_tail_middleAngle, 0, 1, 0);
+  var tail2_coords = new Matrix4(tail_middle.matrix);
+  tail_middle.matrix.rotate(-95, 1, 0, 0);
+  tail_middle.render();
 
-  var tail2 = new Cylinder();
-  tail2.color = [0.034, 0.2, 0.05, 1];
-  tail2.matrix = tail2_coords;
-  tail2.matrix.rotate(-95, 1, 0, 0);
-  tail2.matrix.rotate(g_tail_endAngle, 0, 0, 1);
-  tail2.matrix.translate(-0.025, -0.8, 0);
-  tail2.matrix.scale(0.8, 0.8, 0.8);
-  tail2.render();
+  // End portion of the tail
+  var tail_end = new Cylinder();
+  tail_end.color = [0.034, 0.2, 0.05, 1];
+  tail_end.matrix = tail2_coords;
+  tail_end.matrix.rotate(-95, 1, 0, 0);
+  tail_end.matrix.rotate(g_tail_endAngle, 0, 0, 1);
+  tail_end.matrix.translate(-0.025, -0.8, 0);
+  tail_end.matrix.scale(0.8, 0.8, 0.8);
+  tail_end.render();
 
+  // Spikes on the back of the crocodile
   var spikes = new Cube();
   spikes.color = [0.034, 0.3, 0.05, 1];
   spikes.matrix = new Matrix4(body_coords);
@@ -478,6 +501,7 @@ function renderAllShapes() {
   spikes3.matrix.translate(-0.8, -1.5, -1.8);
   spikes3.render();
 
+  // Calculates the time that it took to do all the rendering and push the fps to the screen
   var duration = performance.now() - startTime;
   sendTextToHTML(
     " ms: " +
@@ -487,7 +511,7 @@ function renderAllShapes() {
     "performance_text"
   );
 }
-
+// Pushes the text to the screen
 function sendTextToHTML(text, htmlID) {
   var htmlElm = document.getElementById(htmlID);
   if (!htmlElm) {

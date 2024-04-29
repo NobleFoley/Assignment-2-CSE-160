@@ -2,16 +2,12 @@ class Cube {
   // Constructor
   constructor() {
     this.type = "cube";
-    //this.position = [0.0, 0.0, 0.0];
     this.color = [1.0, 0.0, 0.0, 1.0];
-    //this.size = 5.0;
-    //this.segments = 10;
     this.matrix = new Matrix4();
     this.buffer = null;
   }
   // Render the shape * This is the Draw Cube function
   render() {
-    //var xy = this.position;
     var rgba = this.color;
 
     if (this.buffer === null) {
@@ -32,6 +28,7 @@ class Cube {
     drawTriangles3D([0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0], this.buffer);
     drawTriangles3D([0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0], this.buffer);
 
+    // Dims the color on the other sides
     gl.uniform4f(
       u_FragColor,
       rgba[0] * 0.85,
