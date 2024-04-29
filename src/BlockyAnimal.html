@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--
+
+  Noble Foley
+  noafoley@ucsc.edu
+
+  Notes to Grader:
+  Hi :)
+
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blocky Animal</title>
+  </head>
+
+  <body onload="main()">
+    <div>
+      <canvas id="webgl" width="550" height="550">
+        Please use a browser that supports "canvas"
+      </canvas>
+      <img
+        id="picture"
+        src="./IMG_20240414_204431.jpg"
+        width="400"
+        height="400"
+        style="display: none"
+      />
+    </div>
+    <div>
+      <p id="performance_text">O.O</p>
+    </div>
+    <div>
+      <div>
+        <p>*Shift Click the Canvas for a special animation</p>
+      </div>
+      <div style="margin-top: 1rem">
+        <button type="button" id="point_button">Point</button>
+        <button type="button" id="triangle_button">Triangle</button>
+        <button type="button" id="circle_button">Circle</button>
+      </div>
+      <div style="margin-top: 1rem">
+        <label for="tail_base_input">Tail Base:</label>
+        <input
+          id="tail_base_input"
+          type="range"
+          min="-45"
+          max="45"
+          value="0"
+          class="slider"
+        />
+        <label>Animation:</label>
+        <button type="button" id="tail_base_animation_on">ON</button>
+        <button type="button" id="tail_base_animation_off">OFF</button>
+      </div>
+      <div >
+        <label for="magenta_input">Tail Middle:</label>
+        <input
+        id="magenta_input"
+        type="range"
+        min="-45"
+        max="45"
+        value="0"
+        class="slider"
+        />
+        <label>Animation:</label>
+        <button type="button" id="magenta_animation_on">ON</button>
+        <button type="button" id="magenta_animation_off">OFF</button>
+      </div>
+      <div >
+        <label for="yellow_input">Tail End:</label>
+        <input
+          id="yellow_input"
+          type="range"
+          min="-45"
+          max="45"
+          value="0"
+          class="slider"
+        />
+        <label>Animation:</label>
+        <button type="button" id="yellow_animation_on">ON</button>
+        <button type="button" id="yellow_animation_off">OFF</button>
+      </div>
+      <div >
+        <label for="head_input">Head:</label>
+        <input
+          id="head_input"
+          type="range"
+          min="-25"
+          max="25"
+          value="0"
+          class="slider"
+        />
+        <label>Animation:</label>
+        <button type="button" id="head_animation_on">ON</button>
+        <button type="button" id="head_animation_off">OFF</button>
+      </div>
+      <div >
+        <label for="body_input">Body:</label>
+        <input
+          id="body_input"
+          type="range"
+          min="-25"
+          max="25"
+          value="0"
+          class="slider"
+        />
+        <label>Animation:</label>
+        <button type="button" id="body_animation_on">ON</button>
+        <button type="button" id="body_animation_off">OFF</button>
+      </div>
+      <div >
+        <label for="feet_input">Feet:</label>
+        <input
+          id="feet_input"
+          type="range"
+          min="-25"
+          max="25"
+          value="0"
+          class="slider"
+        />
+        <label>Animation:</label>
+        <button type="button" id="feet_animation_on">ON</button>
+        <button type="button" id="feet_animation_off">OFF</button>
+      </div>
+      <div >
+        <label>All Animations:</label>
+        <button type="button" id="all_animation_on">ON</button>
+        <button type="button" id="all_animation_off">OFF</button>
+      </div>
+      <div>
+        <label for="camera_input">Camera Angle:</label>
+        <input
+          id="camera_input"
+          type="range"
+          ,
+          min="0"
+          ,
+          max="90"
+          value="5"
+          class="slider"
+        />
+      </div>
+    </div>
+    
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Points.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Cylinder.js"></script>
+    <script src="BlockyAnimal.js"></script>
+  </body>
+</html>
